@@ -13,7 +13,7 @@ module.exports = {
   },
   
   jwt: {
-    secret: process.env.JWT_SECRET,
+    secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production-2024',
     expire: process.env.JWT_EXPIRE || '7d'
   },
   

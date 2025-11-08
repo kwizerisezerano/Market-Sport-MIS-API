@@ -3,7 +3,12 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { spaceService, Space } from '../../services/spaceService'
 import { zoneService } from '../../services/zoneService'
 import toast from 'react-hot-toast'
+
+import { Plus, Edit, Trash2, Square } from 'lucide-react'
+import { demoSpaces, demoZones, useDemoData } from '../../utils/demoData'
+
 import { Plus, Edit, Trash2, Square, Search, Eye, Filter } from 'lucide-react'
+
 
 const Spaces = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -23,6 +28,18 @@ const Spaces = () => {
   })
 
   const queryClient = useQueryClient()
+
+  const { data: spacesData, isLoading } = useQuery('spaces', () => spaceService.getAll(), {
+    retry: false,
+    onError: () => {},
+  })
+  const { data: zonesData } = useQuery('zones', () => zoneService.getAll(), {
+    retry: false,
+    onError: () => {},
+  })
+  const spaces = useDemoData(spacesData, demoSpaces)
+  const zones = useDemoData(zonesData, demoZones)
+
   const { data: spaces, isLoading } = useQuery(
     ['spaces', statusFilter, zoneFilter, typeFilter, searchTerm],
     () =>
@@ -46,6 +63,7 @@ const Spaces = () => {
     () => spaceService.getAllocationHistory(selectedSpace?.space_id!),
     { enabled: !!selectedSpace?.space_id && showDetails }
   )
+
 
   const createMutation = useMutation((space: Space) => spaceService.create(space), {
     onSuccess: () => {

@@ -2,7 +2,12 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { zoneService, Zone } from '../../services/zoneService'
 import toast from 'react-hot-toast'
+
+import { Plus, Edit, Trash2, MapPin } from 'lucide-react'
+import { demoZones, useDemoData } from '../../utils/demoData'
+
 import { Plus, Edit, Trash2, MapPin, Search, Eye } from 'lucide-react'
+
 
 const Zones = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -20,6 +25,13 @@ const Zones = () => {
   })
 
   const queryClient = useQueryClient()
+
+  const { data: zonesData, isLoading } = useQuery('zones', () => zoneService.getAll(), {
+    retry: false,
+    onError: () => {},
+  })
+  const data = useDemoData(zonesData, demoZones)
+=======
   const { data, isLoading } = useQuery(
     ['zones', statusFilter, searchTerm],
     () => zoneService.getAll({ status: statusFilter !== 'all' ? statusFilter : undefined, search: searchTerm || undefined })
@@ -36,6 +48,7 @@ const Zones = () => {
     () => zoneService.getSpaces(selectedZone?.zone_id!),
     { enabled: !!selectedZone?.zone_id && showDetails }
   )
+
 
   const createMutation = useMutation((zone: Zone) => zoneService.create(zone), {
     onSuccess: () => {

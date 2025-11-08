@@ -52,9 +52,14 @@ module.exports = {
   },
   
   jwt: {
+
     secret: getConfig('jwt.secret', process.env.JWT_SECRET || 'your-secret-key'),
     expire: getConfig('jwt.expiresIn', '7d'),
     algorithm: getConfig('jwt.algorithm', 'HS256')
+
+    secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production-2024',
+    expire: process.env.JWT_EXPIRE || '7d'
+
   },
   
   bcrypt: {

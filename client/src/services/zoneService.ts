@@ -37,6 +37,21 @@ export const zoneService = {
     const response = await api.delete(`/zones/${id}`)
     return response.data
   },
+
+  getSpaces: async (id: number) => {
+    const response = await api.get(`/zones/${id}/spaces`)
+    return response.data
+  },
+
+  getStatistics: async (id: number) => {
+    const response = await api.get(`/zones/${id}/statistics`)
+    return response.data
+  },
+
+  findByCode: async (code: string) => {
+    const response = await api.get(`/zones/code/${code}`)
+    return response.data
+  },
 }
 
 

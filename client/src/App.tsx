@@ -13,6 +13,8 @@ import Payments from './pages/admin/Payments'
 import Reports from './pages/admin/Reports'
 import Notifications from './pages/admin/Notifications'
 import SellerRegistration from './pages/admin/SellerRegistration'
+import Sellers from './pages/admin/Sellers'
+import Users from './pages/admin/Users'
 import SellerSpaces from './pages/seller/Spaces'
 import SellerPayments from './pages/seller/Payments'
 import SellerNotifications from './pages/seller/Notifications'
@@ -50,6 +52,8 @@ function App() {
           <>
             <Route path="zones" element={<Zones />} />
             <Route path="spaces" element={<Spaces />} />
+            <Route path="sellers" element={<Sellers />} />
+            <Route path="users" element={<Users />} />
             <Route path="allocations" element={<Allocations />} />
             <Route path="payments" element={<Payments />} />
             <Route path="reports" element={<Reports />} />

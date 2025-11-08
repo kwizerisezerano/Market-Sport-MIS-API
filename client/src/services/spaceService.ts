@@ -44,6 +44,28 @@ export const spaceService = {
     const response = await api.delete(`/spaces/${id}`)
     return response.data
   },
+
+  getCurrentAllocation: async (id: number) => {
+    const response = await api.get(`/spaces/${id}/allocation`)
+    return response.data
+  },
+
+  getAllocationHistory: async (id: number) => {
+    const response = await api.get(`/spaces/${id}/allocation-history`)
+    return response.data
+  },
+
+  checkAvailability: async (id: number, startDate: string, endDate: string) => {
+    const response = await api.get(`/spaces/${id}/availability`, {
+      params: { start_date: startDate, end_date: endDate },
+    })
+    return response.data
+  },
+
+  updateStatus: async (id: number, status: string) => {
+    const response = await api.put(`/spaces/${id}/status`, { status })
+    return response.data
+  },
 }
 
 

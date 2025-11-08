@@ -46,6 +46,26 @@ export const paymentService = {
     const response = await api.get(`/payments/${paymentId}/receipt`, { responseType: 'blob' })
     return response.data
   },
+
+  getTotalRevenue: async (params?: { start_date?: string; end_date?: string }) => {
+    const response = await api.get('/payments/revenue/total', { params })
+    return response.data
+  },
+
+  getRevenueByZone: async (params?: { start_date?: string; end_date?: string }) => {
+    const response = await api.get('/payments/revenue/by-zone', { params })
+    return response.data
+  },
+
+  getRevenueByMethod: async (params?: { start_date?: string; end_date?: string }) => {
+    const response = await api.get('/payments/revenue/by-method', { params })
+    return response.data
+  },
+
+  updateStatus: async (id: number, status: string) => {
+    const response = await api.put(`/payments/${id}/status`, { status })
+    return response.data
+  },
 }
 
 

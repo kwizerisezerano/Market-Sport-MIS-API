@@ -5,7 +5,7 @@ import { spaceService } from '../../services/spaceService'
 import { sellerService } from '../../services/sellerService'
 import { useAuthStore } from '../../store/authStore'
 import toast from 'react-hot-toast'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Search } from 'lucide-react'
 import { format } from 'date-fns'
 
 const Allocations = () => {
@@ -13,6 +13,8 @@ const Allocations = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [sellerFilter, setSellerFilter] = useState<string>('all')
+  const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [searchTerm, setSearchTerm] = useState<string>('')
   const [formData, setFormData] = useState<Partial<Allocation>>({
     seller_id: 0,
     space_id: 0,
@@ -46,6 +48,15 @@ const Allocations = () => {
   const managedSpaceIds = managedSpaces.map((s: any) => s.space_id)
   const allocations = managedZoneIds.length ? allAllocations.filter((a: Allocation) => managedSpaceIds.includes(a.space_id)) : allAllocations
   const spaces = managedZoneIds.length ? managedSpaces : allSpaces
+
+  const displayAllocations = allocations.filter((a: Allocation) => {
+    const matchesType = typeFilter === 'all' ? true : a.allocation_type === typeFilter
+    const seller = sellers.find((s: any) => s.seller_id === a.seller_id || s.user_id === a.seller_id)
+    const space = spaces.find((s: any) => s.space_id === a.space_id)
+    const target = `${seller?.full_name || seller?.business_name || ''} ${space?.space_number || space?.space_code || ''} ${a.status}`.toLowerCase()
+    const matchesSearch = searchTerm ? target.includes(searchTerm.toLowerCase()) : true
+    return matchesType && matchesSearch
+  })
 
   const createMutation = useMutation((allocation: Allocation) => {
     if (user?.user_type === 'manager' && managedZoneIds.length) {
@@ -122,8 +133,7 @@ const Allocations = () => {
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -147,6 +157,28 @@ const Allocations = () => {
             </option>
           ))}
         </select>
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+          className="block w-full rounded-lg border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+        >
+          <option value="all">All Types</option>
+          <option value="monthly">Monthly</option>
+          <option value="weekly">Weekly</option>
+          <option value="daily">Daily</option>
+        </select>
+        <div className="relative">
+          <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
+            <Search size={16} />
+          </span>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search seller, space, status"
+            className="block w-full rounded-lg border border-gray-300 bg-white py-2 pl-9 pr-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+          />
+        </div>
       </div>
 
       {/* Table */}
@@ -157,7 +189,7 @@ const Allocations = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                {['Seller', 'Space', 'Start Date', 'End Date', 'Status', 'Actions'].map((title) => (
+                {['Seller', 'Space', 'Start Date', 'End Date', 'Type', 'Status', 'Actions'].map((title) => (
                   <th key={title} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {title}
                   </th>
@@ -165,7 +197,7 @@ const Allocations = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
-              {allocations.map((allocation: Allocation) => {
+              {displayAllocations.map((allocation: Allocation) => {
                 const seller = sellers.find((s: any) => s.seller_id === allocation.seller_id || s.user_id === allocation.seller_id)
                 const space = spaces.find((s: any) => s.space_id === allocation.space_id)
                 return (
@@ -174,6 +206,11 @@ const Allocations = () => {
                     <td className="px-6 py-4 font-medium">{space?.space_number || space?.space_code || allocation.space_id}</td>
                     <td className="px-6 py-4">{format(new Date(allocation.start_date), 'MMM dd, yyyy')}</td>
                     <td className="px-6 py-4">{allocation.end_date ? format(new Date(allocation.end_date), 'MMM dd, yyyy') : 'N/A'}</td>
+                    <td className="px-6 py-4">
+                      <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        {allocation.allocation_type}
+                      </span>
+                    </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         allocation.status === 'active' ? 'bg-green-100 text-green-800' :

@@ -35,10 +35,13 @@ class SpaceController {
   // Create new space
   async createSpace(req, res) {
     try {
-      let { zone_id, space_number, space_type, size_sqm, daily_rate, weekly_rate, monthly_rate, features, status } = req.body;
+      let { zone_id, space_number, space_type, size_sqm, daily_rate, weekly_rate, monthly_rate, features, status, space_code } = req.body;
+
+      // Support legacy/front-end payloads that may send space_code instead of space_number
+      const effectiveSpaceNumber = space_number || space_code;
 
       // Validate
-      if (!zone_id || !space_number || !space_type) {
+      if (!zone_id || !effectiveSpaceNumber || !space_type) {
         return res.status(400).json({ success: false, message: 'Zone ID, space number, and type are required' });
       }
 
@@ -60,7 +63,7 @@ class SpaceController {
         zone_id,
         manager_id: null,
         created_by_manager_id: req.user?.user_type === 'manager' ? managerId : null,
-        space_number,
+        space_number: effectiveSpaceNumber,
         space_type,
         size_sqm: size_sqm || null,
         daily_rate: daily_rate || 0,
@@ -142,7 +145,30 @@ class SpaceController {
         return res.status(403).json({ success: false, message: 'Forbidden: space not owned by manager' });
       }
 
-      const updated = await Space.update(id, updates);
+      // Whitelist only actual columns from the `spaces` table to avoid
+      // trying to update joined/read-only fields like zone_name, zone_code, etc.
+      const allowedFields = [
+        'zone_id',
+        'manager_id',
+        'created_by_manager_id',
+        'space_number',
+        'space_type',
+        'size_sqm',
+        'daily_rate',
+        'weekly_rate',
+        'monthly_rate',
+        'features',
+        'status'
+      ];
+
+      const filteredUpdates = {};
+      for (const key of allowedFields) {
+        if (Object.prototype.hasOwnProperty.call(updates, key)) {
+          filteredUpdates[key] = updates[key];
+        }
+      }
+
+      const updated = await Space.update(id, filteredUpdates);
       if (!updated) return res.status(500).json({ success: false, message: 'Failed to update space' });
 
       res.json({ success: true, message: 'Space updated successfully' });

@@ -5,7 +5,7 @@ export interface Space {
   zone_id: number
   space_number?: string
   space_code?: string
-  space_type: 'stall' | 'kiosk' | 'stand'
+  space_type: 'standard' | 'stall' | 'kiosk' | 'stand'
   size_sqm?: number
   size?: string
   daily_rate?: number

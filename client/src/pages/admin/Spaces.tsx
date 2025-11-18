@@ -21,7 +21,7 @@ const classNames = {
   modalContent: 'bg-white rounded-xl shadow-2xl p-8 w-full max-w-xl max-h-[90vh] overflow-y-auto',
 }
 
-const spaceTypes = ['stall', 'kiosk', 'stand']
+const spaceTypes = ['standard', 'stall', 'kiosk', 'stand']
 const spaceStatuses = ['available', 'occupied', 'maintenance', 'reserved']
 
 // Helper function for status colors
@@ -47,8 +47,8 @@ const Spaces = () => {
   const [showDetails, setShowDetails] = useState(false)
   const [formData, setFormData] = useState<Partial<Space>>({
     zone_id: 0,
-    space_code: '',
-    space_type: 'stall',
+    space_number: '',
+    space_type: 'standard',
     monthly_rate: 0,
     daily_rate: 0, // Added based on modal
     weekly_rate: 0, // Added based on modal
@@ -170,8 +170,8 @@ const Spaces = () => {
   const resetForm = () => {
     setFormData({
       zone_id: 0,
-      space_code: '',
-      space_type: 'stall',
+      space_number: '',
+      space_type: 'standard',
       monthly_rate: 0,
       daily_rate: 0,
       weekly_rate: 0,
@@ -186,7 +186,7 @@ const Spaces = () => {
     // Ensure all rates/fields are present in formData, defaulting to 0/''
     setFormData({
       ...space,
-      space_code: space.space_code || space.space_number,
+      space_number: space.space_number || space.space_code,
       daily_rate: space.daily_rate || 0,
       weekly_rate: space.weekly_rate || 0,
       monthly_rate: space.monthly_rate || 0,
@@ -227,8 +227,8 @@ const Spaces = () => {
       weekly_rate: formData.weekly_rate || 0,
       monthly_rate: formData.monthly_rate || 0,
       size_sqm: formData.size_sqm || 0,
-      // Use space_code if space_number isn't explicitly provided (or vice versa)
-      space_code: formData.space_code || formData.space_number || '', 
+      // Canonical identifier sent to backend
+      space_number: formData.space_number || '',
     }
 
     if (editingSpace) {
@@ -453,8 +453,8 @@ const Spaces = () => {
                   <label className={classNames.label}>Space Code *</label>
                   <input
                     type="text"
-                    value={formData.space_code || formData.space_number || ''}
-                    onChange={(e) => setFormData({ ...formData, space_code: e.target.value })}
+                    value={formData.space_number || ''}
+                    onChange={(e) => setFormData({ ...formData, space_number: e.target.value })}
                     className={classNames.input}
                     required
                   />
